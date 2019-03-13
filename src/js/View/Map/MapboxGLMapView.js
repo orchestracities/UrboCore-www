@@ -185,8 +185,10 @@ App.View.Map.MapboxView = Backbone.View.extend({
       this._map.addLayer(layer);
       // Add cluster layers
       var currentSource = this.getSource(layer.source);
+      var currentSourceLayer = layer['source-layer'] || null;
+
       if (currentSource && currentSource._options.cluster === true) {
-        this.addClusterLayersToSource(currentSource.id);
+        this.addClusterLayersToSource(currentSource.id, currentSourceLayer);
       }
     }.bind(this));
   },
@@ -194,14 +196,15 @@ App.View.Map.MapboxView = Backbone.View.extend({
   /**
    * Add cluster layers associated to source id
    *
-   * @param {String} sourceId - layers collections to draw in the map
+   * @param {String} sourceId - source identification
+   * @param {String} sourceLayer - source layer
    */
-  addClusterLayersToSource: function (sourceId) {
+  addClusterLayersToSource: function (sourceId, sourceLayer) {
     var currentMap = this._map;
 
+    // Layers draws the circle color and size
     if (!currentMap.getLayer('clusters-' + sourceId)) {
-      // circle colors
-      currentMap.addLayer({
+      var clusterLayer = {
         id: 'clusters-' + sourceId,
         type: 'circle',
         source: sourceId,
@@ -226,7 +229,13 @@ App.View.Map.MapboxView = Backbone.View.extend({
             40
           ]
         }
-      });
+      };
+
+      // Add source-layer (is required to layer that use a vector source)
+      if (sourceLayer) {
+        clusterLayer['source-layer'] = sourceLayer;
+      }
+      currentMap.addLayer(clusterLayer);
 
       // event when we click on cluster layer
       currentMap.on('click', 'clusters-' + sourceId, function (event) {
@@ -259,9 +268,10 @@ App.View.Map.MapboxView = Backbone.View.extend({
       });
     }
 
+    // Layer shows the items number
     if (!currentMap.getLayer('clusters-count-' + sourceId)) {
       // counter (number)
-      currentMap.addLayer({
+      var clusterCountLayer = {
         id: 'clusters-count-' + sourceId,
         type: 'symbol',
         source: sourceId,
@@ -270,7 +280,12 @@ App.View.Map.MapboxView = Backbone.View.extend({
           'text-field': '{point_count_abbreviated}',
           'text-size': 12
         }
-      });
+      };
+      // Add source-layer (is required to layer that use a vector source)
+      if (sourceLayer) {
+        clusterCountLayer['source-layer'] = sourceLayer;
+      }
+      currentMap.addLayer(clusterCountLayer);
     }
   },
 
