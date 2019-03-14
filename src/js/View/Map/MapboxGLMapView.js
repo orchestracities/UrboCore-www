@@ -148,16 +148,6 @@ App.View.Map.MapboxView = Backbone.View.extend({
       this._sources.push(source);
     }
 
-    // Add cluster options
-    if (dataSource.cluster !== false) {
-      // default options
-      dataSource = _.defaults(dataSource, {
-        cluster: true,
-        clusterMaxZoom: 16, // Max zoom to cluster points on
-        clusterRadius: 50 // Radius of each cluster when clustering points (defaults to 50)
-      });
-    }
-
     // Add source map
     this._map.addSource(idSource, dataSource);
 
@@ -180,21 +170,23 @@ App.View.Map.MapboxView = Backbone.View.extend({
    * @param {Array} layers - layers collection to draw in the map
    */
   addLayers: function (layers) {
-    // Add layers to map
     _.each(layers, function (layer) {
+      // Add layers to map
       this._map.addLayer(layer);
-      // Add cluster layers
+      // Add cluster layers only to layers with GEOJSON
       var currentSource = this.getSource(layer.source);
-      var currentSourceLayer = layer['source-layer'] || null;
-
-      if (currentSource && currentSource._options.cluster === true) {
-        this.addClusterLayersToSource(currentSource.id, currentSourceLayer);
+      if (currentSource && currentSource._options && currentSource._options.cluster === true) {
+        this.addClusterLayersToSource(currentSource.id, layer['source-layer'] || null);
       }
     }.bind(this));
   },
 
   /**
    * Add cluster layers associated to source id
+   * 
+   * IMPORTANT - this in only possible in the layers with GEOJSON
+   * 
+   * Is possible override the function in the child class
    *
    * @param {String} sourceId - source identification
    * @param {String} sourceLayer - source layer

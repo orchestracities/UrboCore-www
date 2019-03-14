@@ -30,12 +30,13 @@ App.View.Map.Layer.MapboxGeoJSONAPILayer = App.View.Map.Layer.MapboxGLLayer.exte
     this.layers = config.layers;
     this._ignoreOnLegend = config.ignoreOnLegend;
     this._idSource = config.source.id;
+    this._sourceOptions = config.source.options || {};
     this._ids = config.layers.map(l => l.id);
 
     // Call parent init class
     App.View.Map.Layer.MapboxGLLayer.prototype
       .initialize.call(
-        this, 
+        this,
         config.source.model,
         config.source.payload,
         config.legend,

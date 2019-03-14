@@ -36,13 +36,13 @@ App.View.Map.Layer.MapboxGLLayer = Backbone.View.extend({
     this._model = model;
     this.legendConfig = legend;
     this._mapEvents = {};
-    this._map.addSource(this._idSource, {
-      'type': 'geojson',
-      'data': {
-        "type": "FeatureCollection",
-        "features": []
+    this._map.addSource(this._idSource, _.defaults({
+      type: 'geojson',
+      data: {
+        type: 'FeatureCollection',
+        features: []
       },
-    });
+    }, this._sourceOptions));
     this._map._layers = this._map._layers.concat(this._layersConfig());
     this._map.addLayers(this._layersConfig());
     this.listenTo(this._model, 'change', this._success);
